@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+group = 'fr.koneiii.common'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'fr.koneiii.common'
+            artifactId = 'Common'
+            version = '1.0-SNAPSHOT'
+            from components.java
+        }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}

@@ -1,0 +1,5 @@
+rootProject.name = 'ExoEndMC'
+include 'RestAPI'
+include 'Common'
+include 'Plugin'
+

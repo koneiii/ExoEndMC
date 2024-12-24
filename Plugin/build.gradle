@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+group = 'fr.koneiii.plugin'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+def lampVersion = '4.0.0-beta.24'
+
+dependencies {
+    implementation 'fr.koneiii.common:Common:1.0-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT'
+    implementation 'io.github.revxrsal:lamp.common:' + lampVersion
+    implementation 'io.github.revxrsal:lamp.bukkit:' + lampVersion
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
