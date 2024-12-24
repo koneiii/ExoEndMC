@@ -1,16 +1,22 @@
 package fr.koneiii.common.profile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.koneiii.common.models.ProfilePostModel;
 import fr.koneiii.common.models.TempProfileModel;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class ProfileManager {
 
+    private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static String BASE_URL = "/api/profile";
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -21,9 +27,27 @@ public class ProfileManager {
         BASE_URL = baseUrl + BASE_URL;
     }
 
-    public TempProfileModel createProfile(UUID uniqueId, String name) throws IOException {
-        String endpoint = BASE_URL + "/create?uniqueId=" + uniqueId + "&name=" + name;
-        return sendGetRequest(endpoint);
+    public TempProfileModel createProfile(UUID uniqueId, String name) throws Exception {
+        ProfilePostModel request = new ProfilePostModel(uniqueId, name);
+        String jsonRequest = objectMapper.writeValueAsString(request);
+
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/create"))
+                .header("Content-Type", "application/json")
+                .header("Authorization", token)
+                .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(httpRequest,
+                HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return objectMapper.readValue(response.body(), TempProfileModel.class);
+        } else {
+            throw new IOException("Failed request: " + response.statusCode());
+        }
+
+
     }
 
     public TempProfileModel getProfile(UUID uniqueId) throws IOException {

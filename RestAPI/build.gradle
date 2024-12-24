@@ -15,9 +15,11 @@ java {
 
 repositories {
     mavenCentral()
+    mavenLocal();
 }
 
 dependencies {
+    implementation 'fr.koneiii.common:Common:1.0-SNAPSHOT'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'

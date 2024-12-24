@@ -1,13 +1,11 @@
 package fr.koneiii.restapi.controllers;
 
+import fr.koneiii.common.models.ProfilePostModel;
 import fr.koneiii.restapi.models.ProfileModel;
 import fr.koneiii.restapi.services.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -17,9 +15,9 @@ public class ProfileController {
     @Autowired
     private ProfileService profileService;
 
-    @GetMapping("/create")
-    public ResponseEntity<ProfileModel> createProfile(UUID uniqueId, String name) {
-        return ResponseEntity.ok(profileService.createProfile(uniqueId, name));
+    @PostMapping("/create")
+    public ResponseEntity<ProfileModel> createProfile(@RequestBody ProfilePostModel request) {
+        return ResponseEntity.ok(profileService.createProfile(request.uniqueId(), request.name()));
     }
 
     @GetMapping("/get")
