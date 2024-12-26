@@ -12,7 +12,7 @@ public class ProfileModel {
     private final UUID uniqueId;
     private String name;
     private int coins;
-    private boolean isOnline;
+    private transient boolean isOnline;
 
     public ProfileModel(UUID uniqueId, String name) {
         this.uniqueId = uniqueId;
