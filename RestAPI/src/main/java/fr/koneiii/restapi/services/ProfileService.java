@@ -3,94 +3,75 @@ package fr.koneiii.restapi.services;
 import fr.koneiii.restapi.models.ProfileModel;
 import fr.koneiii.restapi.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
+@EnableCaching
 public class ProfileService {
 
     @Autowired
     private ProfileRepository profileRepository;
 
-    private Map<UUID, ProfileModel> profiles = new HashMap<>();
-
+    @CachePut(value = "profiles", key = "#uniqueId")
     public ProfileModel createProfile(UUID uniqueId, String name) {
-        if (profiles.containsKey(uniqueId)) {
-            ProfileModel profileModel = profiles.get(uniqueId);
-            if(!profileModel.getName().equals(name)) {
-                profileModel.setName(name);
-                this.profileRepository.save(profileModel);
-            }
-            return profileModel;
-        }
         if (this.profileRepository.existsById(uniqueId.toString())) {
             ProfileModel profile = this.profileRepository.findById(uniqueId.toString()).get();
             if(!profile.getName().equals(name)) {
                 profile.setName(name);
-                this.profileRepository.save(profile);
+                return this.profileRepository.save(profile);
             }
-            this.profiles.put(uniqueId, profile);
             return profile;
         }
         ProfileModel profile = new ProfileModel(uniqueId, name);
-        this.profiles.put(uniqueId, profile);
-        this.profileRepository.save(profile);
-        return profile;
+        return this.profileRepository.save(profile);
     }
 
-
+    @Cacheable(value = "profiles", key = "#uniqueId")
     public ProfileModel getProfile(UUID uniqueId) {
-        if (profiles.containsKey(uniqueId)) {
-            return profiles.get(uniqueId);
-        }
-        if (this.profileRepository.existsById(uniqueId.toString())) {
-            ProfileModel profile = this.profileRepository.findById(uniqueId.toString()).get();
-            this.profiles.put(uniqueId, profile);
-            return profile;
-        }
-        return null;
+        return this.profileRepository.findById(uniqueId.toString()).orElse(null);
     }
 
-    public void saveProfile(ProfileModel profile) {
-        this.profiles.put(profile.getUniqueId(), profile);
-        this.profileRepository.save(profile);
+    @CachePut(value = "profiles", key = "#profile.getUniqueId()")
+    public ProfileModel saveProfile(ProfileModel profile) {
+        return this.profileRepository.save(profile);
     }
 
-    public void saveProfile(UUID uniqueId) {
+    @CachePut(value = "profiles", key = "#uniqueId")
+    public ProfileModel saveProfile(UUID uniqueId) {
         ProfileModel profile = getProfile(uniqueId);
         if (profile == null) {
-            return;
+            return null;
         }
-        this.profileRepository.save(profile);
+        return this.profileRepository.save(profile);
     }
 
-
+    @CachePut(value = "profiles", key = "#profile.getUniqueId()")
     public ProfileModel updateProfile(ProfileModel profile) {
-        this.profiles.put(profile.getUniqueId(), profile);
-        return profile;
+        return this.profileRepository.save(profile);
     }
 
+    @CachePut(value = "profiles", key = "#uniqueId")
     public ProfileModel updateCoins(UUID uniqueId, int coins) {
         ProfileModel profile = getProfile(uniqueId);
         if (profile == null) {
             return null;
         }
         profile.setCoins(coins);
-        return profile;
+        return this.profileRepository.save(profile);
     }
 
+    @CachePut(value = "profiles", key = "#uniqueId")
     public ProfileModel updateOnline(UUID uniqueId, boolean isOnline) {
         ProfileModel profile = getProfile(uniqueId);
         if (profile == null) {
             return null;
         }
         profile.setOnline(isOnline);
-        return profile;
+        return this.profileRepository.save(profile);
     }
-
-
-
 }
